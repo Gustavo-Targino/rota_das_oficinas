@@ -14,25 +14,21 @@ import Typography from "@mui/material/Typography";
 
 import { useState } from "react";
 
-// const romanos = [
-//     "I",
-//     "IV",
-//     "V",
-//     "IX",
-//     "X",
-//     "XL",
-//     "L",
-//     "XC",
-//     "C",
-//     "CD",
-//     "D",
-//     "CM",
-//     "M"
-// ]
-
-// const arabicos = [
-//     1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000
-// ]
+const romanos = [
+    "I",
+    "IV",
+    "V",
+    "IX",
+    "X",
+    "XL",
+    "L",
+    "XC",
+    "C",
+    "CD",
+    "D",
+    "CM",
+    "M"
+]
 
 const algarismos = {
   I: 1,
@@ -44,21 +40,27 @@ const algarismos = {
   M: 1000,
 };
 
+const arabicos = [
+    1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000
+]
+
 const romanRegex = /^[IVXLCDMivxlcdm]+$/
 
 const numberRegex = /^[0-9]*$/
 
+
 export default function Conversor() {
   
 
-
+  const[showResults, setShowResults] = useState('')
+  
   const [entradaRom, setEntradaRom] = useState("");
-  const [romano, setRomano] = useState("");
+  
   const [errorRomanoInput, setErrorRomanoInput] = useState(false);
 
   const validateRomInput = (event)=> {
 
-        let validacao = event.target.value
+        let validacao = event.target.value.toUpperCase()
 
         if(romanRegex.test(validacao)) {
             console.log(validacao)
@@ -71,10 +73,29 @@ export default function Conversor() {
 
 
   const [entradaNum, setEntradaNum] = useState("");
-  const[decimal, setDecimal] = useState('');
+
   const [errorNumInput, setErrorNumInput] = useState(false);
 
-  function romanoParaDecimal() {
+  const validateNumInput = (event)=> {
+    let validacao = event.target.value
+    if(numberRegex.test(validacao)) {
+      setEntradaNum(validacao)
+    } else {
+      setEntradaNum(validacao.replace(/.$/,""))
+    }
+  }
+
+  function romanoParaArabico() {
+
+    if(!romanRegex.test(entradaRom)) {
+      setEntradaRom('')
+      setErrorRomanoInput(true)
+      setShowResults('')
+      return
+    }
+
+    setErrorRomanoInput(false)
+  
     let resultado = 0;
     let ln = null;
     let numero = entradaRom;
@@ -94,41 +115,38 @@ export default function Conversor() {
         }
       }
     }
-    setDecimal(resultado);
+    setShowResults(`${entradaRom} em arábico = ${resultado}`);
   }
 
-  function decimalParaRomano () {
-
-    if(entradaNum>3999) {
-        setEntradaNum('')
-        setOpen(true)
-        return
+  
+  function arábicoParaRomano() {
+    
+    if(entradaNum<1 || entradaNum>3999 || !numberRegex.test(entradaNum)) {
+      setEntradaNum('')
+      setErrorNumInput(true)
+      setShowResults('')
+      return
     }
 
-    let resultado = '';
-    let divisao = 0;
-    let resto = entradaNum;
-    let vetorNumeros = [1000,500,100,50,10];
-    let vetorRomanos = ['M','D','C','L','X'];
-    let vetorDezena = ['I','II','III','IV','V','VI','VII','VIII','IX'];
-
-    for (let i = 0; i < vetorNumeros.length; i++) {
-        divisao = parseInt(resto/vetorNumeros[i]);
-        resto = entradaNum % vetorNumeros[i];
-        if (divisao > 0) {
-            for (let x = 0; x < divisao; x++) {
-                resultado = resultado + vetorRomanos[i];
-            }
-        } else if (resto < 10) {
-            if (vetorDezena[resto-1] !== undefined) {
-                resultado = resultado + vetorDezena[resto-1];
-            }
-            break;
-        }
+    setErrorNumInput(false)
+    
+    let result = []
+    let number = entradaNum
+    
+    let i=12;
+    while(number>0) {
+      let div = Math.floor(number/arabicos[i]);
+      number = number%arabicos[i];
+    while(div--) {
+        result.push(romanos[i])
     }
-        
-            setRomano(resultado)
-       
+
+      i--;
+
+    }
+
+    setShowResults(`${entradaNum} em romano = ${result.join('')} `)
+   
   }
 
 
@@ -139,7 +157,7 @@ export default function Conversor() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh",
+        minHeight: "100vh"
       }}
     >
       <Paper
@@ -152,7 +170,7 @@ export default function Conversor() {
           gap: "2rem",
           backgroundColor: "#fff",
           p: 3,
-          pb: 5,
+          pb:4
         }}
       >
         <Box
@@ -163,8 +181,8 @@ export default function Conversor() {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, backgroundColor: "#FFA400" }}>
-            <CalculateIcon />
+          <Avatar sx={{ p:1 ,m: 1, backgroundColor: "#FFA400" }}>
+            <CalculateIcon fontSize='large'/>
           </Avatar>
           <Typography component="h1" variant="h4" fontWeight="bold">
             Conversor Arábico / Romano
@@ -180,7 +198,7 @@ export default function Conversor() {
           }}
         >
           <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography>Romano para decimal</Typography>
+            <Typography>Romano para arábico</Typography>
 
             <TextField
               name="romano"
@@ -188,15 +206,15 @@ export default function Conversor() {
               fullWidth
               sx={{ mb: 1 }}
               onChange={validateRomInput}
-               value={entradaRom}
-              // error={emailInvalido}
-              // helperText={emailInvalido ? 'Digite um e-mail válido' : ''}
+              value={entradaRom}
+               error={errorRomanoInput}
+               helperText={errorRomanoInput ? 'Algarismos aceitos: I, V, X, L, C, D,M ' : ''}
             />
           </Box>
 
           <Button
             variant="contained"
-            onClick={romanoParaDecimal}
+            onClick={romanoParaArabico}
             sx={{
               backgroundColor: "#FFA400",
               mt: 2,
@@ -219,23 +237,25 @@ export default function Conversor() {
           }}
         >
           <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography >Decimal para romano</Typography>
+
+            <Typography>Arábico para romano</Typography>
 
             <TextField
               name="decimal"
               variant="outlined"
               fullWidth
               sx={{ mb: 1 }}
-              onChange={(e) => setEntradaNum(e.target.value)}
-               value={entradaNum}
-              error={open}
-              helperText={open ? 'O número deve ser entre 1 e 3999.' : ''}
+              onChange={validateNumInput}
+              value={entradaNum}
+              error={errorNumInput}
+              helperText={errorNumInput ? 'O número deve ser entre 1 e 3999.' : ''}
+              onKeyDown={(e)=> e.key ==='Enter' && arábicoParaRomano()}
             />
           </Box>
 
           <Button
             variant="contained"
-            onClick={decimalParaRomano}
+            onClick={arábicoParaRomano}
             sx={{
               backgroundColor: "#FFA400",
               mt: 2,
@@ -249,8 +269,9 @@ export default function Conversor() {
           </Button>
         </Box>
 
-        <Typography>Decimal: {decimal}</Typography>
-        <Typography>Romano: {romano}</Typography>
+
+        <Typography>{showResults}</Typography>
+        
       </Paper>
 
     </Box>
