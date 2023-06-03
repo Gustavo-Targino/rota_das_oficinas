@@ -157,7 +157,7 @@ export default function Conversor() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh"
+        minHeight: {md:'85vh', xs:'80vh'} 
       }}
     >
       <Paper
@@ -209,6 +209,7 @@ export default function Conversor() {
               value={entradaRom}
                error={errorRomanoInput}
                helperText={errorRomanoInput ? 'Algarismos aceitos: I, V, X, L, C, D,M ' : ''}
+               onKeyDown={(e)=> e.key ==='Enter' && romanoParaArabico()}
             />
           </Box>
 
