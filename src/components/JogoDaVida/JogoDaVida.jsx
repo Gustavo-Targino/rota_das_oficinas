@@ -7,7 +7,7 @@ import Game from "./Game";
 export default function JogoDaVida() {
     return (
         
-     <Box sx={{display:'flex', flexWrap:'wrap' ,flexDirection:'column' ,justifyContent:'center', alignItems:'center', mt:'10rem'}}>
+     <Box sx={{display:'flex', flexWrap:'wrap' ,flexDirection:'column' ,justifyContent:'center', alignItems:'center', mt:'7rem'}}>
        <Game/>
      </Box>
        

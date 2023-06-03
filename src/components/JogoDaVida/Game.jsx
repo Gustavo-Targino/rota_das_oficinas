@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, forwardRef ,useEffect } from "rea
 import { produce } from "immer";
 
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
@@ -47,6 +48,7 @@ const Game = () => {
   };
 
 
+
   const [grid, setGrid] = useState(() => {
     return generateEmptyGrid();
   });
@@ -57,6 +59,7 @@ const Game = () => {
   runningRef.current = running;
 
   const runSimulation = useCallback(() => {
+
     if (!runningRef.current) {
       return;
     }
@@ -71,14 +74,14 @@ const Game = () => {
               const newK = k + y;
               if (newI >= 0 && newI < numRows && newK >= 0 && newK < numCols) {
                 neighbors += g[newI][newK];
-              }
+              } 
             });
 
             if (neighbors < 2 || neighbors > 3) {
               gridCopy[i][k] = 0;
             } else if (g[i][k] === 0 && neighbors === 3) {
               gridCopy[i][k] = 1;
-            }
+            } 
           }
         }
       });
@@ -91,7 +94,7 @@ const Game = () => {
 
   return (
     <>
-      
+      <Typography component='h1' variant='h4' sx={{mb:3}}>Jogo da vida</Typography>
       <div
         style={{
           display: "grid",
@@ -118,7 +121,7 @@ const Game = () => {
           ))
         )}
       </div>
-<div style={{marginTop:'1rem'}}>
+<div style={{marginTop:'2rem'}}>
    
       <Button
       sx={{color:'#fff', backgroundColor: '#FFA400', borderColor:'#FFA400', "&:hover": {
@@ -127,7 +130,7 @@ const Game = () => {
         color: "#FFA400"} }}
         variant='outlined'
         onClick={() => {
-          if(grid.find(linha => linha.includes(1)) === undefined) {
+          if(grid.find(linha => linha.includes(1)) === undefined && !running) {
             setOpen(true)
             if(running) {
               setRunning(!running)
@@ -180,13 +183,15 @@ const Game = () => {
         Limpar
       </Button>
 
+
+
        <Snackbar open={open} onClose={handleClose}>
           <Alert
             onClose={handleClose}
             severity="error"
             sx={{ width: "100%" }}
           >
-            Não pode ser vazio!
+            O jogo não pode iniciar com as células vazias!
           </Alert>
         </Snackbar>
       </div>
