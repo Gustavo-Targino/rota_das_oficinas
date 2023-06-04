@@ -12,6 +12,8 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
+import Alert from '@mui/material/Alert';
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -60,6 +62,8 @@ export default function Divisor() {
 
     const[selecteds, setSelecteds] = useState([])
 
+
+    const [emptyClientes, setEmptyClientesError] = useState([])
 
     function createProductIndex(produto, consumidores) {
         return {
@@ -128,7 +132,18 @@ export default function Divisor() {
     }
 
     function show() {
-        console.log(`${produtos[0].clientes} consumiram ${produtos[0].nome}`)
+
+        setEmptyClientesError([])
+        produtos.map((produto)=> {
+            if(produto.clientes.length === 0) {
+                console.log(`${produto.nome} não possui nenhum cliente. Um produto deve ser consumido por ao menos um cliente.`)
+                 setEmptyClientesError(old => [...old, `${produto.nome}`])
+                console.log(emptyClientes)
+            } else {
+                console.log(`${produto.clientes} consumiram ${produto.nome}`)
+            }
+        })
+        
     }
 
 
@@ -182,9 +197,18 @@ export default function Divisor() {
 
              <Box sx={{display:'flex', flexDirection:'column' ,justifyContent:'flex-start', alignItems:'center'}}>
 
+            {emptyClientes.map((item)=> (
+                <div>
+                    <Alert variant="outlined" severity="error" sx={{my: 2}}>
+                        {item} não possui clientes. Um produto deve haver clientes.
+                    </Alert>
+                </div>
+            ))}
+             
+
             {produtos.map((produto, index)=> (
                 <Box key={index}>
-                    <Typography>Quem consumiu {produto.nome}?</Typography>
+                    <Typography >Quem consumiu {produto.nome}?</Typography>
                     
                  <FormControl sx={{ my:1 ,width: 300 }}>
                     <Select
@@ -196,6 +220,7 @@ export default function Divisor() {
                     onChange={(e)=> handleChange(e,index)}
                     renderValue={(selected) =>  selected.join(', ')}
                     MenuProps={MenuProps}
+                   
                     >
                     {clientes.map((item) => (
                         <MenuItem key={item} value={item}>
