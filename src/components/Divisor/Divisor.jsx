@@ -15,13 +15,15 @@ import Modal from '@mui/material/Modal';
 import Divider from '@mui/material/Divider';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
+import ContaPDF from "./ContaPDF";
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
+      width: 250
     },
   },
 };
@@ -31,7 +33,7 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 300,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -203,19 +205,20 @@ export default function Divisor() {
            setResult(conta_pessoas)
 
 
+        } else if(clientes.length === 0 || produtos.length === 0) {
+            window.alert('Insira ao menos um cliente e um produto.')
         } else {
-
             setSoma(0)
         }
     }
 
 
     return(
-        <Box sx={{display:'flex', flexDirection: 'column' ,justifyContent:'center', alignItems:'center', gap:'2rem'}}> 
+        <Box sx={{display:'flex', flexDirection: 'column' ,justifyContent:'center', alignItems:'center', gap:'2rem', pt:5}}> 
 
             <Typography component='h1' variant='h4'>Divisor</Typography>
 
-            <Box sx={{display:'flex', justifyContent:'center', alignItems:'center'}}>
+            <Box sx={{display:'flex', justifyContent:'center', alignItems:'center', gap:1}}>
                 <Box sx={{display:'flex', flexDirection:'column'}}>
                 
                 <Typography>Cliente</Typography>
@@ -223,7 +226,11 @@ export default function Divisor() {
               name="cliente"
               variant="outlined"
               fullWidth
-              sx={{ mb: 1 }}
+              sx={{ mb: 1,  '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#FFA400', // Defina a cor da borda quando o TextField está selecionado
+                },
+              }, }}
               onChange={validateClienteAdd}
               value={cliente}
               error={clienteError}
@@ -231,28 +238,36 @@ export default function Divisor() {
               onKeyDown={(e)=> e.key ==='Enter' && addCliente()}
             /> 
             </Box>
-                <Button onClick={addCliente}>
+                <Button variant='contained' sx={{ backgroundColor: "#FFA400",
+              mt: 2,
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: "#FFA400",
+              }}} onClick={addCliente}>
                     Adicionar
                 </Button>
             </Box>
 
 
-            <Box sx={{display:'flex', flexDirecion:'column' ,justifyContent:'center', alignItems:'center'}}>
+            <Box sx={{display:'flex', flexDirecion:'column' ,justifyContent:'center', alignItems:'center', gap:1}}>
                 <Box sx={{display:'flex', flexDirection:'column'}}>
                 
                 <Typography>Produto</Typography>
                 <Box sx={{display:'flex', gap:1}}>
                      <TextField
-              name="produto"
-              variant="outlined"
-              
-              sx={{ mb: 1 }}
-              onChange={(e)=> setProduto(e.target.value)}
-              value={produto}
-              error={produtoError}
-              helperText={produtoError ? 'Insira um produto válido' : ''}
-              onKeyDown={(e)=> e.key ==='Enter' && addProduct()}
-            /> 
+                    name="produto"
+                    variant="outlined"
+                    sx={{ mb: 1,  '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#FFA400', // Defina a cor da borda quando o TextField está selecionado
+                        },
+                      }, }}
+                    onChange={(e)=> setProduto(e.target.value)}
+                    value={produto}
+                    error={produtoError}
+                    helperText={produtoError ? 'Insira um produto válido' : ''}
+                    onKeyDown={(e)=> e.key ==='Enter' && addProduct()}
+                    /> 
 
                 <TextField
                 error={precoError}
@@ -271,7 +286,12 @@ export default function Divisor() {
                 </Box>
             
             </Box>
-                <Button onClick={addProduct}>
+                <Button variant='contained' sx={{ backgroundColor: "#FFA400",
+              mt: 2,
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: "#FFA400",
+              }}}  onClick={addProduct}>
                     Adicionar
                 </Button>
             </Box>
@@ -300,12 +320,14 @@ export default function Divisor() {
                     value={produto.clientes}
                     onChange={(e)=> handleChange(e,index)}
                     renderValue={(selected) =>  selected.join(', ')}
-                    MenuProps={MenuProps}
-                   
+                    MenuProps={MenuProps} 
+                    
                     >
                     {clientes.map((item) => (
                         <MenuItem key={item} value={item}>
-                        <Checkbox checked={produto.clientes.indexOf(item) > -1} />
+                        <Checkbox checked={produto.clientes.indexOf(item) > -1} sx={{'&.Mui-checked': {
+                        color: '#FFA400'
+                        },}} />
                         <ListItemText primary={item} />
                         </MenuItem>
                     ))}
@@ -316,10 +338,15 @@ export default function Divisor() {
     
                 
 
-        <Button onClick={show}>
+        <Button  variant='contained' sx={{ backgroundColor: "#FFA400",
+              mt: 2,
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: "#FFA400",
+              }}} onClick={show}>
                     Ver conta
             </Button>
-            
+           
             </Box>
           
 
@@ -334,22 +361,27 @@ export default function Divisor() {
                 Conta
                 </Typography>
                 {result.map((pessoa, index)=> (
-                    <>
-                <Typography key={index} id="modal-modal-description" sx={{ mt: 2 }}>
+                    <div key={index}>
+                <Typography  id="modal-modal-description" sx={{ mt: 2 }}>
 
                     {`${pessoa.nome} consumiu ${pessoa.consumiu.join(', ')}, total a pagar: R$${pessoa.total_a_pagar}`}
 
                 </Typography>
                 <Divider />
                 
-                    </>
+                    </div>
                 ))}
 
                 <Typography sx={{mt:3, mb:1}} fontWeight={'bold'}>Valor bruto mínimo da conta: R${soma}</Typography>
 
-                {/* <Box>
-                    <Button endIcon={<PictureAsPdfIcon/>}>Salvar PDF</Button>
-                </Box> */}
+                <Box>
+                    <Button variant='contained' sx={{ backgroundColor: "#FFA400",
+              mt: 2,
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: "#FFA400",
+              }}} endIcon={<PictureAsPdfIcon/>} onClick={(e) => ContaPDF(result)}>Salvar PDF</Button>
+                </Box>
                
             </Box>
             </Modal>
