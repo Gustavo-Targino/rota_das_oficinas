@@ -2,11 +2,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
@@ -15,6 +13,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
 import Modal from '@mui/material/Modal';
 import Divider from '@mui/material/Divider';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -40,7 +39,6 @@ const style = {
   };
 
 const personRegex = /^[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ'\s]+$/
-const precoRegex = /^[0-9]*$/
 const clientes = []
 const produtos = []
 
@@ -101,10 +99,10 @@ export default function Divisor() {
 
 
     const handleChange = (event, index) => {
-        console.log(produtos)
+       
         const usuario = event.target.value
-        //const nomeProduto = event.target.name
-        console.log(usuario)
+        
+      
         if(typeof usuario === 'string') {
             setSelecteds(usuario.split(','))
         } else {
@@ -116,11 +114,7 @@ export default function Divisor() {
         
       };
 
-      useEffect(()=> {
-        console.log('mudou = ' + selecteds)
-        
-      }, [selecteds])
-
+     
 
     
     function addProduct() {
@@ -146,6 +140,8 @@ export default function Divisor() {
 
     }
 
+    const [result, setResult] = useState([])
+
     function show() {
 
         let soma = 0
@@ -154,12 +150,12 @@ export default function Divisor() {
         let exception = 0
         produtos.map((produto)=> {
             if(produto.clientes.length === 0) {
-                console.log(`${produto.nome} não possui nenhum cliente. Um produto deve ser consumido por ao menos um cliente.`)
+               
                  setEmptyClientesError(old => [...old, `${produto.nome}`])
-                console.log(emptyClientes)
+               
                 exception++
             } else {
-                console.log(`${produto.clientes} consumiram ${produto.nome}`)
+               
                 soma += parseFloat(produto.preco)
             }
         })
@@ -167,11 +163,48 @@ export default function Divisor() {
         if( clientes.length!=0 && produtos.length!=0 && exception===0 ) {
            setSoma(soma)
            handleOpen()
+
+            
+           let conta_pessoas = [...clientes]
+           
+           conta_pessoas.map((obj, index)=> {
+                conta_pessoas[index] = {
+                    nome: clientes[index],
+                    consumiu: [],
+                    total_a_pagar: 0,
+                }
+           })
+           
+         
+
+
+           {produtos.map((item)=> {
+            
+            
+            item.clientes.forEach(function(pessoa) {
+               
+
+                conta_pessoas.forEach(function(obj) {
+                    if(pessoa === obj.nome) {
+                      
+                            obj.nome = pessoa
+                            obj.consumiu.push(item.nome)
+                            obj.total_a_pagar += Math.round(parseFloat(item.preco/item.clientes.length))
+                    }
+                })
+
+
+            })
+           })}
+
+           
+
+          
+           setResult(conta_pessoas)
+
+
         } else {
-            console.log(clientes.length)
-            console.log(produtos.length)
-            console.log(emptyClientes.length)
-            console.log('ainda nao estamos prontos')
+
             setSoma(0)
         }
     }
@@ -297,21 +330,26 @@ export default function Divisor() {
             aria-describedby="modal-modal-description"
             >
             <Box  sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
+                <Typography id="modal-modal-title" variant="h6" component="h2" fontWeight={'bold'}>
                 Conta
                 </Typography>
-                {produtos.map((produto, index)=> (
+                {result.map((pessoa, index)=> (
                     <>
                 <Typography key={index} id="modal-modal-description" sx={{ mt: 2 }}>
-                    {`${produto.clientes.join(', ')} ${produto.clientes.length === 1 ? 'consumiu' : 'consumiram'} ${produto.nome} de valor R$${produto.preco}. Total = A conta de ${produto.nome} se divide em R$${Math.round(parseFloat(produto.preco)/produto.clientes.length)} para cada ${produto.nome} comprado(a).  `}
+
+                    {`${pessoa.nome} consumiu ${pessoa.consumiu.join(', ')}, total a pagar: R$${pessoa.total_a_pagar}`}
+
                 </Typography>
                 <Divider />
                 
                     </>
                 ))}
 
-                <Typography>Total mínimo da conta: {soma}</Typography>
-                {/* <Button>Salvar PDF</Button> */}
+                <Typography sx={{mt:3, mb:1}} fontWeight={'bold'}>Valor bruto mínimo da conta: R${soma}</Typography>
+
+                {/* <Box>
+                    <Button endIcon={<PictureAsPdfIcon/>}>Salvar PDF</Button>
+                </Box> */}
                
             </Box>
             </Modal>
