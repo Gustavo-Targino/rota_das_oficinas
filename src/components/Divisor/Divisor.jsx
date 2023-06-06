@@ -2,8 +2,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { useState } from "react";
-
+import { useState, useRef, createRef } from "react";
+import html2pdf from 'html2pdf.js';
 
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -15,15 +15,15 @@ import Modal from '@mui/material/Modal';
 import Divider from '@mui/material/Divider';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
-import ContaPDF from "./ContaPDF";
-
+import { PDF } from "./PDF";
+const contaPDFRef = createRef()
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
   PaperProps: {
     style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250
+      maxHeight: ITEM_HEIGHT * 5 + ITEM_PADDING_TOP,
+      width: 150
     },
   },
 };
@@ -33,11 +33,12 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 300,
+    minWidth: 300,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
-    p: 4,
+    p: 2,
+    overflow: 'auto'
   };
 
 const personRegex = /^[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ'\s]+$/
@@ -111,14 +112,10 @@ export default function Divisor() {
             setSelecteds(usuario)
             produtos[index].clientes = usuario
         }
-       
-        
-        
+          
       };
 
      
-
-    
     function addProduct() {
         
         if(preco.length===0 || preco < 1) {
@@ -213,8 +210,36 @@ export default function Divisor() {
     }
 
 
+   
+    
+
+    function gerarPdf() {
+        const content =  contaPDFRef.current 
+
+        const options = {
+            margin:1,
+            filename: 'Conta.pdf',
+            html2canvas: {scale: 2},
+            jsPDF: {unit:'mm', format: 'a4', orientation: 'portrait'},
+        }
+        
+        html2pdf().set(options).from(content).save()
+
+    }
+
     return(
+
+        <>
+       
+            <Box sx={{display: 'none'}}>
+              <PDF ref={contaPDFRef} conta={result}/>
+            </Box>
+
         <Box sx={{display:'flex', flexDirection: 'column' ,justifyContent:'center', alignItems:'center', gap:'2rem', pt:5}}> 
+
+   
+
+
 
             <Typography component='h1' variant='h4'>Divisor</Typography>
 
@@ -357,20 +382,22 @@ export default function Divisor() {
             aria-describedby="modal-modal-description"
             >
             <Box  sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2" fontWeight={'bold'}>
+                <Typography id="modal-modal-title" variant="overline" component="h2" fontWeight={'bold'}>
                 Conta
                 </Typography>
                 {result.map((pessoa, index)=> (
                     <div key={index}>
-                <Typography  id="modal-modal-description" sx={{ mt: 2 }}>
+                <Typography   id="modal-modal-description" sx={{ mt: 1 }}>
 
-                    {`${pessoa.nome} consumiu ${pessoa.consumiu.join(', ')}, total a pagar: R$${pessoa.total_a_pagar}`}
+                    {`${pessoa.nome} total a pagar: R$${pessoa.total_a_pagar}`}
 
                 </Typography>
                 <Divider />
                 
                     </div>
                 ))}
+
+                  
 
                 <Typography sx={{mt:3, mb:1}} fontWeight={'bold'}>Valor bruto mínimo da conta: R${soma}</Typography>
 
@@ -380,14 +407,15 @@ export default function Divisor() {
               "&:hover": {
                 backgroundColor: "transparent",
                 color: "#FFA400",
-              }}} endIcon={<PictureAsPdfIcon/>} onClick={(e) => ContaPDF(result)}>Salvar PDF</Button>
+              }}} endIcon={<PictureAsPdfIcon/>} onClick={gerarPdf}>Salvar PDF com detalhes</Button>
                 </Box>
                
             </Box>
             </Modal>
 
 
-
+          
         </Box>
+        </>
     )
 }
